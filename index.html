@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JurnalPro - Updated Header</title>
+    <title>JurnalPro - Backup & Filter System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -20,8 +20,7 @@
 
     <header class="bg-white border-b sticky top-0 z-40 px-4 py-4 flex justify-between items-center shadow-sm">
         <h1 class="text-xl font-bold text-blue-600">JurnalPro</h1>
-        <div id="header-date" class="text-[10px] font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full uppercase tracking-wider">
-            </div>
+        <div id="header-date" class="text-[10px] font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full uppercase tracking-wider"></div>
     </header>
 
     <main class="max-w-md mx-auto p-4">
@@ -44,7 +43,7 @@
             <div class="bg-blue-600 p-6 rounded-2xl text-white shadow-lg shadow-blue-200" onclick="switchMenu('input')">
                 <h3 class="font-bold text-lg">Mulai Mengajar?</h3>
                 <p class="text-blue-100 text-sm mb-4">Catat materi dan absensi kehadiran siswa sekarang.</p>
-                <span class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm inline-block">Buat Jurnal Baru</span>
+                <span class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm inline-block shadow-sm">Buat Jurnal Baru</span>
             </div>
         </section>
 
@@ -61,16 +60,35 @@
             
             <div class="bg-white p-4 rounded-2xl border shadow-sm mb-4 space-y-3">
                 <div class="grid grid-cols-2 gap-2">
-                    <select id="filter-mapel" onchange="applyFilters()" class="bg-gray-50 border text-xs rounded-xl p-3 outline-none"></select>
-                    <select id="filter-kelas" onchange="applyFilters()" class="bg-gray-50 border text-xs rounded-xl p-3 outline-none"></select>
+                    <select id="filter-mapel" onchange="applyFilters()" class="bg-gray-50 border text-xs rounded-xl p-3 outline-none font-medium"></select>
+                    <select id="filter-kelas" onchange="applyFilters()" class="bg-gray-50 border text-xs rounded-xl p-3 outline-none font-medium"></select>
                 </div>
                 <input type="date" id="filter-tanggal" onchange="applyFilters()" class="w-full bg-gray-50 border text-xs rounded-xl p-3 outline-none">
                 <button onclick="resetFilters()" class="w-full text-[9px] font-bold text-red-400 uppercase tracking-widest">Reset Filter</button>
             </div>
+
             <div id="riwayat-list" class="space-y-4"></div>
         </section>
 
         <section id="view-master" class="view">
+            <div class="bg-slate-900 p-5 rounded-2xl text-white mb-6 shadow-xl">
+                <h3 class="text-xs font-bold mb-3 flex items-center gap-2 opacity-80 uppercase tracking-wider">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+                    Database Management
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="exportDB()" class="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl text-[10px] font-bold uppercase flex items-center justify-center gap-2 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                        Ekspor JSON
+                    </button>
+                    <label class="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl text-[10px] font-bold uppercase flex items-center justify-center gap-2 cursor-pointer transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Impor JSON
+                        <input type="file" id="file-import" class="hidden" accept=".json" onchange="importDB(event)">
+                    </label>
+                </div>
+            </div>
+
             <div class="flex border-b mb-6 bg-white rounded-xl overflow-hidden shadow-sm">
                 <button onclick="switchTab('tab-siswa')" id="btn-tab-siswa" class="flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm">Data Siswa</button>
                 <button onclick="switchTab('tab-mapel')" id="btn-tab-mapel" class="flex-1 py-3 font-bold text-gray-400 text-sm">Data Mapel</button>
@@ -110,28 +128,21 @@
         <section id="view-absensi" class="view">
             <h2 class="text-xl font-bold mb-4 text-blue-600" id="label-kelas-aktif"></h2>
             <div id="siswa-list-absen" class="space-y-2 mb-6"></div>
-            <button onclick="saveJurnalFinal()" class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl">Simpan Seluruh Data</button>
+            <button onclick="saveJurnalFinal()" class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg">Simpan Seluruh Data</button>
         </section>
     </main>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t px-6 py-3 flex justify-between items-center z-50 shadow-lg">
         <button onclick="switchMenu('home')" class="nav-item flex flex-col items-center gap-1 active-nav" id="nav-home">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
             <span class="text-[9px] font-bold uppercase">Home</span>
         </button>
         <button onclick="switchMenu('riwayat')" class="nav-item flex flex-col items-center gap-1 text-slate-400" id="nav-riwayat">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
             <span class="text-[9px] font-bold uppercase">Riwayat</span>
         </button>
         <button onclick="switchMenu('master')" class="nav-item flex flex-col items-center gap-1 text-slate-400" id="nav-master">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /></svg>
             <span class="text-[9px] font-bold uppercase">Master</span>
         </button>
     </nav>
@@ -142,70 +153,39 @@
         let jurnal_db = JSON.parse(localStorage.getItem('jurnal_db_v5')) || [];
         let tempJurnal = null;
 
-        // Inisialisasi Header Tanggal
-        function setHeaderDate() {
-            const now = new Date();
-            const options = { day: 'numeric', month: 'short', year: 'numeric' };
-            document.getElementById('header-date').innerText = now.toLocaleDateString('id-ID', options);
-        }
-
-        function save() {
-            localStorage.setItem('db_siswa_v5', JSON.stringify(db_siswa));
-            localStorage.setItem('db_mapel_v5', JSON.stringify(db_mapel));
-            localStorage.setItem('jurnal_db_v5', JSON.stringify(jurnal_db));
-            updateStats();
-        }
-
         const trashIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
 
-        function switchMenu(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view-' + id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.replace('text-blue-600', 'text-slate-400'));
-            const activeNav = document.getElementById('nav-' + id);
-            if(activeNav) activeNav.classList.replace('text-slate-400', 'text-blue-600');
-            
-            if(id === 'riwayat') { populateFilters(); applyFilters(); }
-            if(id === 'master') renderMaster();
-            if(id === 'input') populateInputFields();
-            if(id === 'home') updateStats();
+        // === BACKUP & RESTORE JSON ===
+        function exportDB() {
+            const fullDB = { siswa: db_siswa, mapel: db_mapel, jurnal: jurnal_db, timestamp: new Date().toISOString() };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullDB));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "JurnalPro_DB_Backup.json");
+            dlAnchor.click();
         }
 
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById('btn-tab-siswa').className = id === 'tab-siswa' ? 'flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm' : 'flex-1 py-3 font-bold text-gray-400 text-sm';
-            document.getElementById('btn-tab-mapel').className = id === 'tab-mapel' ? 'flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm' : 'flex-1 py-3 font-bold text-gray-400 text-sm';
+        function importDB(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (confirm("Ganti data lama dengan data dari file backup?")) {
+                        db_siswa = imported.siswa || [];
+                        db_mapel = imported.mapel || [];
+                        jurnal_db = imported.jurnal || [];
+                        save();
+                        alert("Database berhasil dipulihkan!");
+                        location.reload();
+                    }
+                } catch (err) { alert("File tidak valid!"); }
+            };
+            reader.readAsText(file);
         }
 
-        // Logic Master, Filter, Riwayat, dan Input sama seperti sebelumnya...
-        function addSiswa() {
-            const nis = document.getElementById('inp-nis').value, nama = document.getElementById('inp-nama').value, kelas = document.getElementById('inp-kelas').value;
-            if(!nis || !nama || !kelas) return alert("Lengkapi data!");
-            db_siswa.push({nis, nama, kelas}); save(); renderMaster();
-            document.getElementById('inp-nis').value = ''; document.getElementById('inp-nama').value = ''; document.getElementById('inp-kelas').value = '';
-        }
-        function addMapel() {
-            const m = document.getElementById('inp-mapel').value;
-            if(!m) return; db_mapel.push(m); save(); renderMaster();
-            document.getElementById('inp-mapel').value = '';
-        }
-        function delSiswa(i) { if(confirm('Hapus siswa ini?')) { db_siswa.splice(i,1); save(); renderMaster(); } }
-        function delMapel(i) { if(confirm('Hapus mapel ini?')) { db_mapel.splice(i,1); save(); renderMaster(); } }
-
-        function renderMaster() {
-            document.getElementById('master-siswa-list').innerHTML = db_siswa.map((s,i) => `
-                <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm">
-                    <div><span class="text-sm font-bold block">${s.nama}</span><small class="text-slate-400 uppercase font-bold text-[9px]">${s.nis} • ${s.kelas}</small></div>
-                    <button onclick="delSiswa(${i})" class="text-red-400 hover:text-red-600">${trashIcon}</button>
-                </div>`).join('');
-            document.getElementById('master-mapel-list').innerHTML = db_mapel.map((m,i) => `
-                <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm">
-                    <span class="text-sm font-bold">${m}</span>
-                    <button onclick="delMapel(${i})" class="text-red-400 hover:text-red-600">${trashIcon}</button>
-                </div>`).join('');
-        }
-
+        // === FILTER LOGIC ===
         function populateFilters() {
             const mapels = [...new Set(db_mapel)];
             const kels = [...new Set(db_siswa.map(s => s.kelas))];
@@ -222,18 +202,78 @@
         }
 
         function resetFilters() {
-            document.getElementById('filter-mapel').value=""; document.getElementById('filter-kelas').value=""; document.getElementById('filter-tanggal').value="";
+            document.getElementById('filter-mapel').value=""; 
+            document.getElementById('filter-kelas').value=""; 
+            document.getElementById('filter-tanggal').value="";
             applyFilters();
+        }
+
+        // === CORE LOGIC ===
+        function setHeaderDate() {
+            document.getElementById('header-date').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function save() {
+            localStorage.setItem('db_siswa_v5', JSON.stringify(db_siswa));
+            localStorage.setItem('db_mapel_v5', JSON.stringify(db_mapel));
+            localStorage.setItem('jurnal_db_v5', JSON.stringify(jurnal_db));
+            updateStats();
+        }
+
+        function switchMenu(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.replace('text-blue-600', 'text-slate-400'));
+            const activeNav = document.getElementById('nav-' + id);
+            if(activeNav) activeNav.classList.replace('text-slate-400', 'text-blue-600');
+            
+            if(id === 'riwayat') { populateFilters(); applyFilters(); }
+            if(id === 'master') renderMaster();
+            if(id === 'input') populateInputFields();
+            updateStats();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('btn-tab-siswa').className = id === 'tab-siswa' ? 'flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm' : 'flex-1 py-3 font-bold text-gray-400 text-sm';
+            document.getElementById('btn-tab-mapel').className = id === 'tab-mapel' ? 'flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm' : 'flex-1 py-3 font-bold text-gray-400 text-sm';
+        }
+
+        function addSiswa() {
+            const nis = document.getElementById('inp-nis').value, nama = document.getElementById('inp-nama').value, kelas = document.getElementById('inp-kelas').value;
+            if(!nis || !nama || !kelas) return;
+            db_siswa.push({nis, nama, kelas}); save(); renderMaster();
+            document.getElementById('inp-nis').value=''; document.getElementById('inp-nama').value=''; document.getElementById('inp-kelas').value='';
+        }
+
+        function addMapel() {
+            const m = document.getElementById('inp-mapel').value;
+            if(!m) return; db_mapel.push(m); save(); renderMaster();
+            document.getElementById('inp-mapel').value='';
+        }
+
+        function renderMaster() {
+            document.getElementById('master-siswa-list').innerHTML = db_siswa.map((s,i) => `
+                <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm">
+                    <div><span class="text-sm font-bold block">${s.nama}</span><small class="text-slate-400 uppercase font-bold text-[9px]">${s.nis} • ${s.kelas}</small></div>
+                    <button onclick="db_siswa.splice(${i},1);save();renderMaster()" class="text-red-400">${trashIcon}</button>
+                </div>`).join('');
+            document.getElementById('master-mapel-list').innerHTML = db_mapel.map((m,i) => `
+                <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold">${m}</span>
+                    <button onclick="db_mapel.splice(${i},1);save();renderMaster()" class="text-red-400">${trashIcon}</button>
+                </div>`).join('');
         }
 
         function renderRiwayatList(data) {
             const list = document.getElementById('riwayat-list');
-            list.innerHTML = data.length ? data.map(j => `
+            list.innerHTML = data.map(j => `
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <div class="flex justify-between items-start mb-2"><span class="text-[9px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded uppercase">${j.kelas}</span><span class="text-[9px] text-slate-400 uppercase">${j.tanggal}</span></div>
                     <h4 class="font-bold text-slate-800 text-sm">${j.mapel}</h4>
                     <p class="text-[11px] text-slate-500 mt-1">${j.materi}</p>
-                </div>`).join('') : '<p class="text-center py-10 text-slate-300 text-sm italic">Data tidak ditemukan</p>';
+                </div>`).join('') || '<p class="text-center py-10 text-slate-300 italic">Data tidak ditemukan</p>';
         }
 
         function populateInputFields() {
@@ -254,10 +294,6 @@
                 isoDate: now.toISOString().split('T')[0],
                 absensi: []
             };
-            renderAbsenForm(); switchMenu('absensi');
-        };
-
-        function renderAbsenForm() {
             const filtered = db_siswa.filter(s => s.kelas === tempJurnal.kelas);
             document.getElementById('label-kelas-aktif').innerText = "Absensi " + tempJurnal.kelas;
             document.getElementById('siswa-list-absen').innerHTML = filtered.map(s => `
@@ -265,7 +301,8 @@
                     <span class="text-sm font-medium">${s.nama}</span>
                     <select class="absen-opt text-xs font-bold text-blue-600 bg-gray-50 p-2 rounded-lg"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alpa</option></select>
                 </div>`).join('');
-        }
+            switchMenu('absensi');
+        };
 
         function saveJurnalFinal() {
             document.querySelectorAll('#siswa-list-absen > div').forEach(div => {
@@ -289,7 +326,6 @@
             document.getElementById('stat-siswa').innerText = db_siswa.length;
         }
 
-        // Jalankan saat startup
         setHeaderDate();
         updateStats();
     </script>
