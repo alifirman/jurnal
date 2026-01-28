@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JurnalPro - Updated Header</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .active-nav { color: #2563eb !important; }
+        .view { display: none; animation: fadeIn 0.2s ease-in-out; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-900 pb-24">
+
+    <header class="bg-white border-b sticky top-0 z-40 px-4 py-4 flex justify-between items-center shadow-sm">
+        <h1 class="text-xl font-bold text-blue-600">JurnalPro</h1>
+        <div id="header-date" class="text-[10px] font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full uppercase tracking-wider">
+            </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4">
+        
+        <section id="view-home" class="view active">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold tracking-tight">Halo, Bapak/Ibu Guru</h2>
+                <p class="text-slate-500 text-sm">Berikut ringkasan data saat ini.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-6 text-center">
+                <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Jurnal</p>
+                    <p id="stat-jurnal" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Siswa</p>
+                    <p id="stat-siswa" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+            <div class="bg-blue-600 p-6 rounded-2xl text-white shadow-lg shadow-blue-200" onclick="switchMenu('input')">
+                <h3 class="font-bold text-lg">Mulai Mengajar?</h3>
+                <p class="text-blue-100 text-sm mb-4">Catat materi dan absensi kehadiran siswa sekarang.</p>
+                <span class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm inline-block">Buat Jurnal Baru</span>
+            </div>
+        </section>
+
+        <section id="view-riwayat" class="view">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Riwayat</h2>
+                <button onclick="exportToExcel()" class="flex flex-col items-center text-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="text-[9px] font-bold">EKSPOR</span>
+                </button>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl border shadow-sm mb-4 space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="filter-mapel" onchange="applyFilters()" class="bg-gray-50 border text-xs rounded-xl p-3 outline-none"></select>
+                    <select id="filter-kelas" onchange="applyFilters()" class="bg-gray-50 border text-xs rounded-xl p-3 outline-none"></select>
+                </div>
+                <input type="date" id="filter-tanggal" onchange="applyFilters()" class="w-full bg-gray-50 border text-xs rounded-xl p-3 outline-none">
+                <button onclick="resetFilters()" class="w-full text-[9px] font-bold text-red-400 uppercase tracking-widest">Reset Filter</button>
+            </div>
+            <div id="riwayat-list" class="space-y-4"></div>
+        </section>
+
+        <section id="view-master" class="view">
+            <div class="flex border-b mb-6 bg-white rounded-xl overflow-hidden shadow-sm">
+                <button onclick="switchTab('tab-siswa')" id="btn-tab-siswa" class="flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm">Data Siswa</button>
+                <button onclick="switchTab('tab-mapel')" id="btn-tab-mapel" class="flex-1 py-3 font-bold text-gray-400 text-sm">Data Mapel</button>
+            </div>
+
+            <div id="tab-siswa" class="tab-content space-y-4">
+                <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+                    <input type="number" id="inp-nis" placeholder="NIS" class="w-full bg-gray-50 border rounded-xl p-3 text-sm outline-none">
+                    <input type="text" id="inp-nama" placeholder="Nama Lengkap" class="w-full bg-gray-50 border rounded-xl p-3 text-sm outline-none">
+                    <input type="text" id="inp-kelas" placeholder="Kelas (X-1)" class="w-full bg-gray-50 border rounded-xl p-3 text-sm outline-none">
+                    <button onclick="addSiswa()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm">Tambah Siswa</button>
+                </div>
+                <div id="master-siswa-list" class="space-y-2"></div>
+            </div>
+
+            <div id="tab-mapel" class="tab-content hidden space-y-4">
+                <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+                    <input type="text" id="inp-mapel" placeholder="Nama Mapel" class="w-full bg-gray-50 border rounded-xl p-3 text-sm outline-none">
+                    <button onclick="addMapel()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm">Tambah Mapel</button>
+                </div>
+                <div id="master-mapel-list" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <section id="view-input" class="view">
+            <h2 class="text-xl font-bold mb-4">Input Jurnal</h2>
+            <form id="jurnal-form" class="space-y-4">
+                <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
+                    <select id="jurnal-mapel" class="w-full bg-gray-50 border rounded-xl p-3 outline-none" required></select>
+                    <select id="jurnal-kelas" class="w-full bg-gray-50 border rounded-xl p-3 outline-none" required></select>
+                    <textarea id="jurnal-materi" required class="w-full bg-gray-50 border rounded-xl p-3 outline-none" rows="3" placeholder="Materi yang diajarkan..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl">Lanjut Ke Absensi</button>
+            </form>
+        </section>
+
+        <section id="view-absensi" class="view">
+            <h2 class="text-xl font-bold mb-4 text-blue-600" id="label-kelas-aktif"></h2>
+            <div id="siswa-list-absen" class="space-y-2 mb-6"></div>
+            <button onclick="saveJurnalFinal()" class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl">Simpan Seluruh Data</button>
+        </section>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t px-6 py-3 flex justify-between items-center z-50 shadow-lg">
+        <button onclick="switchMenu('home')" class="nav-item flex flex-col items-center gap-1 active-nav" id="nav-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span class="text-[9px] font-bold uppercase">Home</span>
+        </button>
+        <button onclick="switchMenu('riwayat')" class="nav-item flex flex-col items-center gap-1 text-slate-400" id="nav-riwayat">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span class="text-[9px] font-bold uppercase">Riwayat</span>
+        </button>
+        <button onclick="switchMenu('master')" class="nav-item flex flex-col items-center gap-1 text-slate-400" id="nav-master">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-[9px] font-bold uppercase">Master</span>
+        </button>
+    </nav>
+
+    <script>
+        let db_siswa = JSON.parse(localStorage.getItem('db_siswa_v5')) || [];
+        let db_mapel = JSON.parse(localStorage.getItem('db_mapel_v5')) || [];
+        let jurnal_db = JSON.parse(localStorage.getItem('jurnal_db_v5')) || [];
+        let tempJurnal = null;
+
+        // Inisialisasi Header Tanggal
+        function setHeaderDate() {
+            const now = new Date();
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            document.getElementById('header-date').innerText = now.toLocaleDateString('id-ID', options);
+        }
+
+        function save() {
+            localStorage.setItem('db_siswa_v5', JSON.stringify(db_siswa));
+            localStorage.setItem('db_mapel_v5', JSON.stringify(db_mapel));
+            localStorage.setItem('jurnal_db_v5', JSON.stringify(jurnal_db));
+            updateStats();
+        }
+
+        const trashIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
+
+        function switchMenu(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.replace('text-blue-600', 'text-slate-400'));
+            const activeNav = document.getElementById('nav-' + id);
+            if(activeNav) activeNav.classList.replace('text-slate-400', 'text-blue-600');
+            
+            if(id === 'riwayat') { populateFilters(); applyFilters(); }
+            if(id === 'master') renderMaster();
+            if(id === 'input') populateInputFields();
+            if(id === 'home') updateStats();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('btn-tab-siswa').className = id === 'tab-siswa' ? 'flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm' : 'flex-1 py-3 font-bold text-gray-400 text-sm';
+            document.getElementById('btn-tab-mapel').className = id === 'tab-mapel' ? 'flex-1 py-3 font-bold text-blue-600 border-b-2 border-blue-600 text-sm' : 'flex-1 py-3 font-bold text-gray-400 text-sm';
+        }
+
+        // Logic Master, Filter, Riwayat, dan Input sama seperti sebelumnya...
+        function addSiswa() {
+            const nis = document.getElementById('inp-nis').value, nama = document.getElementById('inp-nama').value, kelas = document.getElementById('inp-kelas').value;
+            if(!nis || !nama || !kelas) return alert("Lengkapi data!");
+            db_siswa.push({nis, nama, kelas}); save(); renderMaster();
+            document.getElementById('inp-nis').value = ''; document.getElementById('inp-nama').value = ''; document.getElementById('inp-kelas').value = '';
+        }
+        function addMapel() {
+            const m = document.getElementById('inp-mapel').value;
+            if(!m) return; db_mapel.push(m); save(); renderMaster();
+            document.getElementById('inp-mapel').value = '';
+        }
+        function delSiswa(i) { if(confirm('Hapus siswa ini?')) { db_siswa.splice(i,1); save(); renderMaster(); } }
+        function delMapel(i) { if(confirm('Hapus mapel ini?')) { db_mapel.splice(i,1); save(); renderMaster(); } }
+
+        function renderMaster() {
+            document.getElementById('master-siswa-list').innerHTML = db_siswa.map((s,i) => `
+                <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm">
+                    <div><span class="text-sm font-bold block">${s.nama}</span><small class="text-slate-400 uppercase font-bold text-[9px]">${s.nis} • ${s.kelas}</small></div>
+                    <button onclick="delSiswa(${i})" class="text-red-400 hover:text-red-600">${trashIcon}</button>
+                </div>`).join('');
+            document.getElementById('master-mapel-list').innerHTML = db_mapel.map((m,i) => `
+                <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold">${m}</span>
+                    <button onclick="delMapel(${i})" class="text-red-400 hover:text-red-600">${trashIcon}</button>
+                </div>`).join('');
+        }
+
+        function populateFilters() {
+            const mapels = [...new Set(db_mapel)];
+            const kels = [...new Set(db_siswa.map(s => s.kelas))];
+            document.getElementById('filter-mapel').innerHTML = '<option value="">Semua Mapel</option>' + mapels.map(m => `<option value="${m}">${m}</option>`).join('');
+            document.getElementById('filter-kelas').innerHTML = '<option value="">Semua Kelas</option>' + kels.map(k => `<option value="${k}">${k}</option>`).join('');
+        }
+
+        function applyFilters() {
+            const m = document.getElementById('filter-mapel').value;
+            const k = document.getElementById('filter-kelas').value;
+            const t = document.getElementById('filter-tanggal').value;
+            const filtered = jurnal_db.filter(j => (m===""||j.mapel===m) && (k===""||j.kelas===k) && (t===""||j.isoDate===t));
+            renderRiwayatList(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-mapel').value=""; document.getElementById('filter-kelas').value=""; document.getElementById('filter-tanggal').value="";
+            applyFilters();
+        }
+
+        function renderRiwayatList(data) {
+            const list = document.getElementById('riwayat-list');
+            list.innerHTML = data.length ? data.map(j => `
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-2"><span class="text-[9px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded uppercase">${j.kelas}</span><span class="text-[9px] text-slate-400 uppercase">${j.tanggal}</span></div>
+                    <h4 class="font-bold text-slate-800 text-sm">${j.mapel}</h4>
+                    <p class="text-[11px] text-slate-500 mt-1">${j.materi}</p>
+                </div>`).join('') : '<p class="text-center py-10 text-slate-300 text-sm italic">Data tidak ditemukan</p>';
+        }
+
+        function populateInputFields() {
+            document.getElementById('jurnal-mapel').innerHTML = db_mapel.map(m => `<option>${m}</option>`).join('');
+            const kels = [...new Set(db_siswa.map(s => s.kelas))];
+            document.getElementById('jurnal-kelas').innerHTML = kels.map(k => `<option>${k}</option>`).join('');
+        }
+
+        document.getElementById('jurnal-form').onsubmit = (e) => {
+            e.preventDefault();
+            const now = new Date();
+            tempJurnal = {
+                id: Date.now(),
+                mapel: document.getElementById('jurnal-mapel').value,
+                kelas: document.getElementById('jurnal-kelas').value,
+                materi: document.getElementById('jurnal-materi').value,
+                tanggal: now.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}),
+                isoDate: now.toISOString().split('T')[0],
+                absensi: []
+            };
+            renderAbsenForm(); switchMenu('absensi');
+        };
+
+        function renderAbsenForm() {
+            const filtered = db_siswa.filter(s => s.kelas === tempJurnal.kelas);
+            document.getElementById('label-kelas-aktif').innerText = "Absensi " + tempJurnal.kelas;
+            document.getElementById('siswa-list-absen').innerHTML = filtered.map(s => `
+                <div class="bg-white p-3 rounded-xl border flex justify-between items-center shadow-sm" data-nama="${s.nama}" data-nis="${s.nis}">
+                    <span class="text-sm font-medium">${s.nama}</span>
+                    <select class="absen-opt text-xs font-bold text-blue-600 bg-gray-50 p-2 rounded-lg"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alpa</option></select>
+                </div>`).join('');
+        }
+
+        function saveJurnalFinal() {
+            document.querySelectorAll('#siswa-list-absen > div').forEach(div => {
+                tempJurnal.absensi.push({ nama: div.dataset.nama, nis: div.dataset.nis, status: div.querySelector('.absen-opt').value });
+            });
+            jurnal_db.unshift(tempJurnal); save(); switchMenu('home');
+        }
+
+        function exportToExcel() {
+            if(!jurnal_db.length) return alert("Belum ada data.");
+            const data = [];
+            jurnal_db.forEach(j => j.absensi.forEach(a => data.push({ Tanggal: j.tanggal, Kelas: j.kelas, Mapel: j.mapel, Materi: j.materi, NIS: a.nis, Siswa: a.nama, Status: a.status })));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Jurnal");
+            XLSX.writeFile(wb, "Laporan_JurnalPro.xlsx");
+        }
+
+        function updateStats() {
+            document.getElementById('stat-jurnal').innerText = jurnal_db.length;
+            document.getElementById('stat-siswa').innerText = db_siswa.length;
+        }
+
+        // Jalankan saat startup
+        setHeaderDate();
+        updateStats();
+    </script>
+</body>
+</html>
